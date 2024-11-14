@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useState } from 'react';
 import FormattedDateTime from "@/components/FormattedDateTime";
@@ -6,7 +6,7 @@ import { Separator } from "@/components/separator";
 import { convertFileSize, formatBytes, getFileType } from "@/utils/utils";
 import Image from "next/image";
 import Link from "next/link";
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';  // import mutate to trigger revalidation
 import axios from "axios";
 import Thumbnail from '@/components/Thumbnail';
 
@@ -36,7 +36,7 @@ interface RoutingData {
 const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 export default function Home() {
-  const { data } = useSWR('https://media-storage.taqiy.com/api/v1/media', fetcher);
+  const { data, error } = useSWR('https://media-storage.taqiy.com/api/v1/media', fetcher);
 
   // Define file extensions for each category
   const documentExtensions = ["doc", "docx", "xls", "xlsx", "pdf"];
@@ -58,90 +58,105 @@ export default function Home() {
 
   const [routingData, setRoutingData] = useState<RoutingData[]>([]);
 
+  // Revalidate the data every 5 seconds using setInterval
   useEffect(() => {
-    const totalSpace = {
-      document: { size: 0, latestDate: "" },
-      image: { size: 0, latestDate: "" },
-      video: { size: 0, latestDate: "" },
-      audio: { size: 0, latestDate: "" },
-      other: { size: 0, latestDate: "" },
-    };
+    const intervalId = setInterval(() => {
+      mutate('https://media-storage.taqiy.com/api/v1/media'); // Triggers revalidation for the SWR hook
+    }, 5000); // 5000 milliseconds = 5 seconds
 
-    // Calculate document size and latest date
-    allDocs.forEach((doc: FileItem) => {
-      totalSpace.document.size += doc.fileSize; // Add file size
-      if (!totalSpace.document.latestDate || doc.createdAt > totalSpace.document.latestDate) {
-        totalSpace.document.latestDate = doc.createdAt; // Get the latest date
-      }
-    });
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, []);
 
-    // Calculate image size and latest date
-    allImages.forEach((img: FileItem) => {
-      totalSpace.image.size += img.fileSize;
-      if (!totalSpace.image.latestDate || img.createdAt > totalSpace.image.latestDate) {
-        totalSpace.image.latestDate = img.createdAt;
-      }
-    });
+  useEffect(() => {
+    if (data) {
+      const totalSpace = {
+        document: { size: 0, latestDate: "" },
+        image: { size: 0, latestDate: "" },
+        video: { size: 0, latestDate: "" },
+        audio: { size: 0, latestDate: "" },
+        other: { size: 0, latestDate: "" },
+      };
 
-    // Calculate media (audio and video) size and latest date
-    allMedia.forEach((media: FileItem) => {
-      totalSpace.video.size += media.fileSize; // Assuming video files
-      if (media.fileType.includes("video")) {
-        if (!totalSpace.video.latestDate || media.createdAt > totalSpace.video.latestDate) {
-          totalSpace.video.latestDate = media.createdAt;
+      // Calculate document size and latest date
+      allDocs.forEach((doc: FileItem) => {
+        totalSpace.document.size += doc.fileSize; // Add file size
+        if (!totalSpace.document.latestDate || doc.createdAt > totalSpace.document.latestDate) {
+          totalSpace.document.latestDate = doc.createdAt; // Get the latest date
         }
-      }
-      if (media.fileType.includes("audio")) {
-        totalSpace.audio.size += media.fileSize;
-        if (!totalSpace.audio.latestDate || media.createdAt > totalSpace.audio.latestDate) {
-          totalSpace.audio.latestDate = media.createdAt;
+      });
+
+      // Calculate image size and latest date
+      allImages.forEach((img: FileItem) => {
+        totalSpace.image.size += img.fileSize;
+        if (!totalSpace.image.latestDate || img.createdAt > totalSpace.image.latestDate) {
+          totalSpace.image.latestDate = img.createdAt;
         }
-      }
-    });
+      });
 
-    // Calculate other files size and latest date
-    allOthers.forEach((other: FileItem) => {
-      totalSpace.other.size += other.fileSize;
-      if (!totalSpace.other.latestDate || other.createdAt > totalSpace.other.latestDate) {
-        totalSpace.other.latestDate = other.createdAt;
-      }
-    });
+      // Calculate media (audio and video) size and latest date
+      allMedia.forEach((media: FileItem) => {
+        totalSpace.video.size += media.fileSize; // Assuming video files
+        if (media.fileType.includes("video")) {
+          if (!totalSpace.video.latestDate || media.createdAt > totalSpace.video.latestDate) {
+            totalSpace.video.latestDate = media.createdAt;
+          }
+        }
+        if (media.fileType.includes("audio")) {
+          totalSpace.audio.size += media.fileSize;
+          if (!totalSpace.audio.latestDate || media.createdAt > totalSpace.audio.latestDate) {
+            totalSpace.audio.latestDate = media.createdAt;
+          }
+        }
+      });
 
-    // Update routingData with dynamic values
-    setRoutingData([
-      {
-        title: "Documents",
-        size: totalSpace.document.size,
-        latestDate: totalSpace.document.latestDate,
-        icon: "/assets/icons/file-document-light.svg",
-        url: "/documents",
-      },
-      {
-        title: "Images",
-        size: totalSpace.image.size,
-        latestDate: totalSpace.image.latestDate,
-        icon: "/assets/icons/file-image-light.svg",
-        url: "/images",
-      },
-      {
-        title: "Media",
-        size: totalSpace.video.size + totalSpace.audio.size,
-        latestDate:
-          totalSpace.video.latestDate > totalSpace.audio.latestDate
-            ? totalSpace.video.latestDate
-            : totalSpace.audio.latestDate,
-        icon: "/assets/icons/file-video-light.svg",
-        url: "/media",
-      },
-      {
-        title: "Others",
-        size: totalSpace.other.size,
-        latestDate: totalSpace.other.latestDate,
-        icon: "/assets/icons/file-other-light.svg",
-        url: "/others",
-      },
-    ]);
+      // Calculate other files size and latest date
+      allOthers.forEach((other: FileItem) => {
+        totalSpace.other.size += other.fileSize;
+        if (!totalSpace.other.latestDate || other.createdAt > totalSpace.other.latestDate) {
+          totalSpace.other.latestDate = other.createdAt;
+        }
+      });
+
+      // Update routingData with dynamic values
+      setRoutingData([
+        {
+          title: "Documents",
+          size: totalSpace.document.size,
+          latestDate: totalSpace.document.latestDate,
+          icon: "/assets/icons/file-document-light.svg",
+          url: "/documents",
+        },
+        {
+          title: "Images",
+          size: totalSpace.image.size,
+          latestDate: totalSpace.image.latestDate,
+          icon: "/assets/icons/file-image-light.svg",
+          url: "/images",
+        },
+        {
+          title: "Media",
+          size: totalSpace.video.size + totalSpace.audio.size,
+          latestDate:
+            totalSpace.video.latestDate > totalSpace.audio.latestDate
+              ? totalSpace.video.latestDate
+              : totalSpace.audio.latestDate,
+          icon: "/assets/icons/file-video-light.svg",
+          url: "/media",
+        },
+        {
+          title: "Others",
+          size: totalSpace.other.size,
+          latestDate: totalSpace.other.latestDate,
+          icon: "/assets/icons/file-other-light.svg",
+          url: "/others",
+        },
+      ]);
+    }
   }, [data]);
+
+  if (error) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <div className="dashboard-container bg-[#F2F4F8] w-full rounded-3xl text-black my-10">
@@ -206,7 +221,6 @@ export default function Home() {
                           height={300}
                           width={300}
                         />
-
                       ) : (
                         <Thumbnail url={file?.path} type={file?.fileType} extension={extension} />
                       )}
@@ -214,24 +228,21 @@ export default function Home() {
 
                     {/* Filename */}
                     <div>
-                      <p className="text-black text-xs">{file?.filename}</p>
-                      <span className="text-sm text-light-200">
-                        {/* Optionally, show the file size or upload date */}
-                        {formatBytes(file?.fileSize)} {/* Format size if needed */}
-                      </span>
+                      <p className="text-black text-sm">{file.filename}</p>
+                    </div>
+                    <div className="space-x-1 text-light-200">
+                      <p className="text-xs">{formatBytes(file?.fileSize)}</p>
                     </div>
                   </div>
-                )
-              }
-
-              )}
+                );
+              })}
           </div>
         ) : (
-          <p className="mt-10 text-center text-light-200">No files uploaded</p>
+          <div className="mt-10">
+            <p>No recent files found</p>
+          </div>
         )}
       </section>
-
-
     </div>
   );
 }
