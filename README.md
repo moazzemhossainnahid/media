@@ -28,7 +28,13 @@ A real-time document upload application that allows users to upload documents an
   
 - **Api URL**:  
   [Visit Api URL](https://media-storage.taqiy.com/api/v1/media)
-  
+
+
+## Demo Image
+
+Here is an image that shows the demo homepage UI of the application:
+
+![Demo UI](https://res.cloudinary.com/dsigyjfjq/image/upload/fl_preserve_transparency/v1731594163/Screenshot_2024-11-14_201813_st5oej.jpg)
 
 ## Installation
 
