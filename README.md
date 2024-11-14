@@ -21,13 +21,13 @@ A real-time document upload application that allows users to upload documents an
 ## Demo
 
 - **UI Video**: You can view the UI video here:  
-  [UI Demo Video](https://drive.google.com/file/d/1LHzFZMN93QvLrZhSFbdQwGKsxu3ESINA/view?usp=drive_link)
+  [UI Demo Video](https://drive.google.com/file/d/1LHzFZMN93QvLrZhSFbdQwGKsxu3ESINA/view?usp=drive_link){:target="_blank"}
   
 - **Live Site**:  
-  [Visit Live Site](https://media-storage-six.vercel.app/)
+  [Visit Live Site](https://media-storage-six.vercel.app/){:target="_blank"}
   
 - **Api URL**:  
-  [Visit Api URL](https://media-storage.taqiy.com/api/v1/media)
+  [Visit Api URL](https://media-storage.taqiy.com/api/v1/media){:target="_blank"}
 
 ## Installation
 
