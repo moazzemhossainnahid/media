@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  * {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-black text-white min-h-screen;
+  }
+
+  /* Remove scrollbar */
+  .remove-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    border-radius: 0px;
+  }
+
+  .remove-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .remove-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 0px;
+  }
+
+  .remove-scrollbar::-webkit-scrollbar-thumb:hover {
+    /* background: #1e2238; */
+    background: transparent;
+  }
+
+  .recharts-responsive-container {
+    height: initial !important;
+  }
+
+}
+
+
+@layer utilities {
+
+  .container {
+    @apply mx-auto max-w-7xl px-5;
+  }
+  .primary-btn {
+    @apply bg-gray-500 hover:bg-gray-700 transition-all rounded-full cursor-pointer !important;
+  }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+
+    /* ===== TYPOGRAPHY */
+    .h1 {
+      @apply text-[34px] leading-[42px] font-bold;
+    }
+    .h2 {
+      @apply text-[24px] leading-[36px] font-bold;
+    }
+    .h3 {
+      @apply text-[20px] leading-[28px] font-semibold;
+    }
+    .h4 {
+      @apply text-[18px] leading-[20px] font-medium;
+    }
+    .h5 {
+      @apply text-[16px] leading-[24px] font-semibold;
+    }
+
+  /* =====  STYLE CLASSES */
+
+  /* Root Layout */
+  .main-content {
+    @apply remove-scrollbar h-full flex-1 overflow-auto bg-light-400 px-5 py-7 sm:mr-7 sm:rounded-[30px] md:mb-7 md:px-9 md:py-10 !important;
+  }
+
+  /* Dashboard */
+  .dashboard-container {
+    @apply mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 xl:gap-10 !important;
+  }
+  .dashboard-summary-list {
+    @apply mt-6 grid grid-cols-1 gap-4 xl:mt-10 xl:grid-cols-2 xl:gap-9 !important;
+  }
+  .dashboard-summary-card {
+    @apply relative mt-6 rounded-[20px] bg-white p-5 transition-all hover:scale-105 !important;
+  }
+  .summary-type-icon {
+    @apply absolute -left-3 top-[-25px] z-10 w-[190px] object-contain !important;
+  }
+  .summary-type-size {
+    @apply h4 relative z-20 w-full text-right !important;
+  }
+  .summary-type-title {
+    @apply h5 relative z-20 text-center !important;
+  }
+  .dashboard-recent-files {
+    @apply h-full rounded-[20px] bg-white p-5 xl:p-8 !important;
+  }
+
+
+
+    /* Type page */
+    .page-container {
+      @apply mx-auto flex w-full max-w-7xl flex-col items-center gap-8 !important;
+    }
+    .total-size-section {
+      @apply flex mt-2 flex-col justify-between sm:flex-row sm:items-center !important;
+    }
+    
+  /* FileUploader */
+  .uploader-button {
+    @apply primary-btn h-[52px] gap-2 px-10 shadow !important;
+  }
+  .uploader-preview-list {
+    @apply fixed bottom-10 right-10 z-50 flex size-full h-fit max-w-[480px] flex-col gap-3 rounded-[20px] p-7 shadow !important;
+  }
+  .uploader-preview-item {
+    @apply flex items-center justify-between  gap-3 rounded-xl p-3 shadow !important;
+  }
+
+}
